@@ -71,22 +71,127 @@ One note before you delve into your tasks: for each endpoint, you are expected t
 
 You will need to provide detailed documentation of your API endpoints including the URL, request parameters, and the response body. Use the example below as a reference.
 
-### Documentation Example
-
-`GET '/api/v1.0/categories'`
-
+### GET '/categories'
 - Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
 - Request Arguments: None
-- Returns: An object with a single key, `categories`, that contains an object of `id: category_string` key: value pairs.
+- Returns: An object with a single key, categories, that contains an object of id: category_string key:value pairs.
 
-```json
+```
 {
-  "1": "Science",
-  "2": "Art",
-  "3": "Geography",
-  "4": "History",
-  "5": "Entertainment",
-  "6": "Sports"
+	'1' : "Science",
+	'2' : "Art",
+	'3' : "Geography",
+	'4' : "History",
+	'5' : "Entertainment",
+	'6' : "Sports"
+}
+```
+
+### GET '/questions'
+- Fetches a dictionary of questions, paginated in groups of 10. 
+- Returns JSON object of categories, questions dictionary with answer, category, difficulty, id and question.
+
+```
+{
+    "categories": [
+        "Science",
+        "Art",
+        "Geography",
+        "History",
+        "Entertainment",
+        "Sports"
+    ],
+    "current_category": [],
+    "questions": [
+        {
+            "answer": "Apollo 13",
+            "category": 5,
+            "difficulty": 4,
+            "id": 2,
+            "question": "What movie earned Tom Hanks his third straight Oscar nomination, in 1996?"
+        }
+        ... # omitted for brevity 
+    ],
+    "success": true,
+    "total_questions": 33
+}
+```
+
+### DELETE '/questions/<int:question_id>'
+- Deletes selected question by id
+- Returns JSON object of deleted id, remaining questions, and length of total questions
+
+```
+{
+    "deleted": 2,
+    "questions": [
+        {
+            "answer": "Tom Cruise",
+            "category": 5,
+            "difficulty": 4,
+            "id": 4,
+            "question": "What actor did author Anne Rice first denounce, then praise in the role of her beloved Lestat?"
+        }    
+        ... # omitted for brevity 
+    ],
+    "success": true,
+    "total_questions": 32
+}
+```
+
+### POST '/questions'
+- Creates a new question posted from the react front end.
+- Returns a success value and ID of the question.
+
+Example (Create):
+`curl http://localhost:5000/questions -X POST -H "Content-Type: application/json" -d '{"question":"Who is Tony Stark?", "answer":"Iron Man", "category":"4", "difficulty":"2"}'`
+```
+{
+  "success": true, 
+  "total_questions": 35
+}
+
+```
+
+### GET '/categories/<cat_id>/questions'
+- Returns JSON response of current_category, and the questions pertaining to that category
+
+```
+{
+ "current_category": {
+    "id": 1, 
+    "type": "Science"
+  }, 
+  "questions": [
+    {
+      "answer": "The Liver", 
+      "category": 1, 
+      "difficulty": 4, 
+      "id": 20, 
+      "question": "What is the heaviest organ in the human body?"
+    }, 
+   ... # omitted for brevity
+  ], 
+  "success": true, 
+  "total_questions": 6
+}
+```
+
+
+### POST '/quizzes'
+- Generates a quiz based on category or a random selection depending on what the user chooses.
+- Returns a random question
+
+```
+{
+  "question": {
+    "answer": "One", 
+    "category": 2, 
+    "difficulty": 4, 
+    "id": 18, 
+    "question": "How many paintings did Van Gogh sell in his lifetime?"
+  }, 
+  "success": true
 }
 ```
 
