@@ -46,7 +46,6 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['message'], 'Resource Not Found')
     
     def test_get_questions(self):
-        """" gets questions using /questions endpoint without a page argument"""
         res = self.client().get('/questions?page=2')
         data = json.loads(res.data)
 
