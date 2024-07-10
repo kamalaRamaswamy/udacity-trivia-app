@@ -73,8 +73,9 @@ def create_app(test_config=None):
     """
     @app.route('/questions')
     def get_questions():
+        page = request.args.get('page', 1, type=int)
         try:
-            questions = Question.query.all()
+            questions = Question.query.all().paginate(page, 10)
             allCategories = Category.query.all()
 
             if len(questions) == 0:
@@ -83,7 +84,7 @@ def create_app(test_config=None):
                 abort(404)
 
             return jsonify({
-                'questions': paginate_questions(request, questions),
+                'questions': questions,
                 'total_questions': len(questions),
                 'categories': {category.id: category.type for category in allCategories},
                 'current_category': None,
