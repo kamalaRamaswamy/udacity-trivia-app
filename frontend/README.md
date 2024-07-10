@@ -67,9 +67,7 @@ You can optionally update this game play to increase the number of questions or 
 
 `GET '/categories'`
 
-- Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
-- Request Arguments: None
-- Returns: An object with a single key, categories, that contains an object of id: category_string key:value pairs.
+- Fetches a list of categories in key value format. The key being the id and value being the category
 
 ```json
 {
@@ -88,9 +86,7 @@ You can optionally update this game play to increase the number of questions or 
 
 `GET '/questions?page=${integer}'`
 
-- Fetches a paginated set of questions, a total number of questions, all categories and current category string.
-- Request Arguments: `page` - integer
-- Returns: An object with 10 paginated questions, total questions, object including all categories, and current category string
+- Fetches a set of questions, a total number of questions, categories and current category.
 
 ```json
 {
@@ -120,9 +116,7 @@ You can optionally update this game play to increase the number of questions or 
 
 `GET '/categories/${id}/questions'`
 
-- Fetches questions for a cateogry specified by id request argument
-- Request Arguments: `id` - integer
-- Returns: An object with questions for the specified category, total questions, and current category string
+- Fetches questions for selected cateogry along with total number of questions and currently selected category
 
 ```json
 {
@@ -144,25 +138,13 @@ You can optionally update this game play to increase the number of questions or 
 
 `DELETE '/questions/${id}'`
 
-- Deletes a specified question using the id of the question
-- Request Arguments: `id` - integer
-- Returns: Does not need to return anything besides the appropriate HTTP status code. Optionally can return the id of the question. If you are able to modify the frontend, you can have it remove the question using the id instead of refetching the questions.
+- Deletes the question selected by the user
 
 ---
 
 `POST '/quizzes'`
 
-- Sends a post request in order to get the next question
-- Request Body:
-
-```json
-{
-    'previous_questions': [1, 4, 20, 15]
-    quiz_category': 'current category'
- }
-```
-
-- Returns: a single new question object
+- In order to play Trivia game, this api checks for previously played questions and returns a question not in the list along with answer, dificulty level and category id.
 
 ```json
 {
@@ -176,51 +158,3 @@ You can optionally update this game play to increase the number of questions or 
 }
 ```
 
----
-
-`POST '/questions'`
-
-- Sends a post request in order to add a new question
-- Request Body:
-
-```json
-{
-  "question": "Heres a new question string",
-  "answer": "Heres a new answer string",
-  "difficulty": 1,
-  "category": 3
-}
-```
-
-- Returns: Does not return any new data
-
----
-
-`POST '/questions'`
-
-- Sends a post request in order to search for a specific question by search term
-- Request Body:
-
-```json
-{
-  "searchTerm": "this is the term the user is looking for"
-}
-```
-
-- Returns: any array of questions, a number of totalQuestions that met the search term and the current category string
-
-```json
-{
-  "questions": [
-    {
-      "id": 1,
-      "question": "This is a question",
-      "answer": "This is an answer",
-      "difficulty": 5,
-      "category": 5
-    }
-  ],
-  "totalQuestions": 100,
-  "currentCategory": "Entertainment"
-}
-```

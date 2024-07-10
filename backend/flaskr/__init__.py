@@ -49,13 +49,13 @@ def create_app(test_config=None):
     """
     @app.route('/categories', methods=['GET'])
     def get_categories():
-        categories = Category.query.order_by(Category.type).all()
-        if len(categories) == 0:
+        allCategories = Category.query.all()
+        if len(allCategories) == 0:
             abort(404)
 
         return jsonify({
             'success': True,
-            'categories': {category.id: category.type for category in categories}
+            'categories': {category.id: category.type for category in allCategories}
         })
 
 
@@ -73,19 +73,20 @@ def create_app(test_config=None):
     """
     @app.route('/questions')
     def get_questions():
-        selection = Question.query.order_by(Question.id).all()
-        current_questions = paginate_questions(request, selection)
-        categories = Category.query.order_by(Category.type).all()
+        questions = Question.query.all()
+        allCategories = Category.query.all()
 
-        if len(current_questions) == 0:
+        if len(questions) == 0:
+            abort(404)
+        if len(allCategories) == 0:
             abort(404)
 
         return jsonify({
+            'questions': paginate_questions(request, questions),
+            'total_questions': len(questions),
+            'categories': {category.id: category.type for category in allCategories},
+            'current_category': None,
             'success': True,
-            'questions': current_questions,
-            'total_questions': len(selection),
-            'categories': {category.id: category.type for category in categories},
-            'current_category': None
         })
     """
     @TODO:
@@ -96,15 +97,14 @@ def create_app(test_config=None):
     """
     @app.route("/questions/<question_id>", methods=['DELETE'])
     def delete_question(question_id):
-        try:
-            question = Question.query.get(question_id)
+        question = Question.query.get(question_id)
+        if question:
             question.delete()
             return jsonify({
                 'success': True,
                 'deleted': question_id
             })
-        except:
-            abort(422)
+        abort(404)
 
     """
     @TODO:
@@ -146,14 +146,14 @@ def create_app(test_config=None):
     @app.route("/questions", methods=['POST'])
     def post_question():
         body = request.get_json()
-        new_question = body.get('question')
-        new_answer = body.get('answer')
-        new_difficulty = body.get('difficulty')
-        new_category = body.get('category')
+        question = body.get('question')
+        answer = body.get('answer')
+        difficulty = body.get('difficulty')
+        category = body.get('category')
 
         try:
-            question = Question(question=new_question, answer=new_answer,
-                                difficulty=new_difficulty, category=new_category)
+            question = Question(question=question, answer=answer,
+                                difficulty=difficulty, category=category)
             question.insert()
 
             return jsonify({
@@ -178,13 +178,12 @@ def create_app(test_config=None):
         if category is None :
             abort(404)
         
-        selection = Question.query.order_by(Question.id).filter(Question.category == category_id ).all()
-        current_questions = paginate_questions(request, selection)
+        questions = Question.query.filter(Question.category == category_id).all()
 
         return jsonify({
                 'success':True,
-                'questions':current_questions,
-                'total_questions' : len(selection),
+                'questions':paginate_questions(request, selection),
+                'total_questions' : len(questions),
                 'current_category' : category_id
                 })
 
@@ -204,26 +203,24 @@ def create_app(test_config=None):
     def get_quizzes():
         try:
             body = request.get_json()
-            previous_questions = body.get('previous_questions', None)
+            prev_questions = body.get('previous_questions', None)
             quiz_category = body.get('quiz_category', None)
-            category_id = quiz_category['id']
-
-            if category_id == 0:
-                questions = Question.query.filter(
-                    Question.id.notin_(previous_questions)).all()
-            else:
-                questions = Question.query.filter(
-                    Question.id.notin_(previous_questions),
-                    Question.category == category_id).all()
-            question = None
-            if(questions):
+            questions = []
+            quiz_question = {}
+            selected_category = Category.query.filter(
+                Category.type == str(quiz_category['type'])).one_or_none()
+            category_id = selected_category.id
+            questions = Question.query.filter(
+                Question.category == str(category_id)).all()
+            for i in range(len(questions)):
                 question = random.choice(questions)
-
+                print('for loop question', str(question.id), question.id, prev_questions)
+                if not str(question.id) in prev_questions:
+                    quiz_question = question.format()
+                    print('inside if', quiz_question)
             return jsonify({
-                'success': True,
-                'question': question.format()
-            })
-
+                'question': quiz_question,
+                'success': True})
         except Exception:
             abort(422)
 
@@ -242,20 +239,12 @@ def create_app(test_config=None):
         }), 404
 
     @app.errorhandler(422)
-    def unprocessable(error):
+    def not_processable(error):
         return jsonify({
             "success": False,
             "error": 422,
             "message": "Not Processable"
         }), 422
-
-    @app.errorhandler(400)
-    def bad_request(error):
-        return jsonify({
-            "success": False,
-            "error": 400,
-            "message": "Bad Request"
-        }), 400
 
     @app.errorhandler(500)
     def server_error(error):
