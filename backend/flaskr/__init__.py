@@ -8,15 +8,12 @@ from models import setup_db, Question, Category
 
 QUESTIONS_PER_PAGE = 10
 
-def paginate_questions(request, selection):
+def paginate_questions(request, data):
     page = request.args.get('page', 1, type=int)
-    start = (page - 1) * QUESTIONS_PER_PAGE
+    start = (page -1 ) * QUESTIONS_PER_PAGE
     end = start + QUESTIONS_PER_PAGE
-
-    questions = [question.format() for question in selection]
-    current_questions = questions[start:end]
-
-    return current_questions
+    data = [item.format() for item in data]
+    return data[start:end]
 
 def create_app(test_config=None):
     # create and configure the app
