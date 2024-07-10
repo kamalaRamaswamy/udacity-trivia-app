@@ -167,7 +167,9 @@ def create_app(test_config=None):
             try:
                 question = Question(question=question, answer=answer,
                                     difficulty=difficulty, category=category)
-                question.insert()
+                print('question', question)
+                if question.question:
+                    question.insert()
 
                 return jsonify({
                     'success': True,
@@ -231,13 +233,11 @@ def create_app(test_config=None):
                 Category.type == str(quiz_category['type'])).one_or_none()
             category_id = selected_category.id
             questions = Question.query.filter(
-                Question.category == str(category_id)).all()
+                    Question.id.notin_(prev_questions),
+                    Question.category == category_id).all()
             for i in range(len(questions)):
                 question = random.choice(questions)
-                print('for loop question', str(question.id), question.id, prev_questions)
-                if not str(question.id) in prev_questions:
-                    quiz_question = question.format()
-                    print('inside if', quiz_question)
+                quiz_question = question.format()
             return jsonify({
                 'question': quiz_question,
                 'success': True})

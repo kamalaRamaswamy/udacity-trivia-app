@@ -194,6 +194,42 @@ Example (Create):
   "success": true
 }
 ```
+### Error response
+
+### 404 - Resource Not Found
+
+```
+{
+    "success": False,
+    "error": 404,
+    "message": "Resource Not Found"
+}
+
+```
+
+### 500 - Internal Server Error
+
+```
+{
+    "success": False,
+    "error": 500,
+    "message": "Internal Server Error"
+}
+
+```
+
+### 422 - Not Processable
+
+```
+{
+    "success": False,
+    "error": 422,
+    "message": "Not Processable"
+}
+
+```
+
+
 
 ## Testing
 
