@@ -22,8 +22,8 @@ def create_app(test_config=None):
     if test_config is None:
         setup_db(app)
     else:
-        database_path = test_config.get('SQLALCHEMY_DATABASE_URI')
-        setup_db(app, database_path=database_path)
+        # database_path = test_config.get('SQLALCHEMY_DATABASE_URI')
+        setup_db(app, database_path=test_config)
 
     """
     @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
@@ -75,7 +75,7 @@ def create_app(test_config=None):
     def get_questions():
         page = request.args.get('page', 1, type=int)
         try:
-            questions = Question.query.all().paginate(page, 10)
+            questions = Question.query.all()
             allCategories = Category.query.all()
 
             if len(questions) == 0:
@@ -84,7 +84,7 @@ def create_app(test_config=None):
                 abort(404)
 
             return jsonify({
-                'questions': questions,
+                'questions': paginate_questions(request, questions),
                 'total_questions': len(questions),
                 'categories': {category.id: category.type for category in allCategories},
                 'current_category': None,
