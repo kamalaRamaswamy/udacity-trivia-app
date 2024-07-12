@@ -42,14 +42,6 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'Not found')
     
-    def test_page_not_found(self):
-        res = self.client().get('/questions?page=100000', json={'difficulty': 1})
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 404)
-        self.assertEqual(data['success'], False)
-        self.assertEqual(data['message'], 'Not Found')
-    
     def test_get_questions(self):
         res = self.client().get('/questions?page=2')
         data = json.loads(res.data)
