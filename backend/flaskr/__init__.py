@@ -202,7 +202,7 @@ def create_app(test_config=None):
 
             return jsonify({
                     'success':True,
-                    'questions':paginate_questions(request, selection),
+                    'questions':paginate_questions(request, questions),
                     'total_questions' : len(questions),
                     'current_category' : category_id
                     })
@@ -230,15 +230,25 @@ def create_app(test_config=None):
             quiz_category = body.get('quiz_category', None)
             questions = []
             quiz_question = {}
-            selected_category = Category.query.filter(
-                Category.type == str(quiz_category['type'])).one_or_none()
-            category_id = selected_category.id
-            questions = Question.query.filter(
-                    Question.id.notin_(prev_questions),
-                    Question.category == category_id).all()
-            for i in range(len(questions)):
-                question = random.choice(questions)
-                quiz_question = question.format()
+            if quiz_category['id'] == 0:
+                 questions = Question.query.filter(
+                    Question.id.notin_(prev_questions)).all()
+            else:
+                selected_category = Category.query.filter(
+                    Category.type == str(quiz_category['type'])).one_or_none()
+                category_id = selected_category.id
+                questions = Question.query.filter(
+                        Question.id.notin_(prev_questions),
+                        Question.category == category_id).all()
+            print(questions)
+            if len(questions) == 0:
+                quiz_question = None
+            else:
+                for i in range(len(questions)):
+                    question = random.choice(questions)
+                    if(question):
+                        quiz_question = question.format()
+            print('quiz question', quiz_question)
             return jsonify({
                 'question': quiz_question,
                 'success': True})
