@@ -110,7 +110,12 @@ def create_app(test_config=None):
                     'success': True,
                     'deleted': question_id
                 })
-            abort(404)
+            else:
+                return jsonify({
+                    "success": False,
+                    "error": 404,
+                    "message": "Resource Not Found"
+                }), 404
 
         except Exception as e:
             print(e)
@@ -134,6 +139,14 @@ def create_app(test_config=None):
             if search_term:
                 search_results = Question.query.filter(
                     Question.question.ilike(f'%{search_term}%')).all()
+                print('search', search_results)
+                if len(search_results) == 0:
+                    return jsonify({
+                    "success": False,
+                    "error": 404,
+                    "message": "Resource Not Found"
+                }), 404
+
 
                 return jsonify({
                     'success': True,
@@ -168,7 +181,6 @@ def create_app(test_config=None):
             try:
                 question = Question(question=question, answer=answer,
                                     difficulty=difficulty, category=category)
-                print('question', question)
                 if question.question:
                     question.insert()
 
@@ -196,7 +208,11 @@ def create_app(test_config=None):
         try:
             category = Category.query.get(category_id)
             if category is None :
-                abort(404)
+                return jsonify({
+                    "success": False,
+                    "error": 404,
+                    "message": "Resource Not Found"
+                }), 404
             
             questions = Question.query.filter(Question.category == category_id).all()
 
@@ -240,7 +256,6 @@ def create_app(test_config=None):
                 questions = Question.query.filter(
                         Question.id.notin_(prev_questions),
                         Question.category == category_id).all()
-            print(questions)
             if len(questions) == 0:
                 quiz_question = None
             else:
@@ -248,12 +263,11 @@ def create_app(test_config=None):
                     question = random.choice(questions)
                     if(question):
                         quiz_question = question.format()
-            print('quiz question', quiz_question)
             return jsonify({
                 'question': quiz_question,
                 'success': True})
         except Exception as e:
-            print(e)
+            abort(500)
 
     """
     @TODO:
